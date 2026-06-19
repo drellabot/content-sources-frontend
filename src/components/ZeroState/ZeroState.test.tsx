@@ -44,7 +44,7 @@ describe('ZeroState', () => {
     navigateMock.mockReset();
   });
 
-  it('shows the Red Hat repository card and navigates from buttons', async () => {
+  it('shows all cards and navigates from buttons', async () => {
     const setZeroState = jest.fn();
     const user = userEvent.setup();
     (useAppContext as jest.Mock).mockReturnValue({
@@ -56,11 +56,56 @@ describe('ZeroState', () => {
 
     expect(screen.getByText(/Get started with Insights/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Browse Red Hat repositories' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Browse Red Hat repositories' }));
-    await user.click(screen.getByRole('button', { name: 'Add repositories now' }));
+    expect(screen.getByRole('button', { name: 'Add custom repositories' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create a template' })).toBeInTheDocument();
 
+    await user.click(screen.getByRole('button', { name: 'Browse Red Hat repositories' }));
     expect(setZeroState).toHaveBeenCalledWith(false);
     expect(navigateMock).toHaveBeenCalledWith('/insights/content/repositories?origin=red_hat');
+  });
+
+  it('navigates to custom repositories', async () => {
+    const setZeroState = jest.fn();
+    const user = userEvent.setup();
+    (useAppContext as jest.Mock).mockReturnValue({
+      setZeroState,
+      isLightspeedEnabled: false,
+    });
+
+    render(<ZeroState />);
+
+    await user.click(screen.getByRole('button', { name: 'Add custom repositories' }));
+    expect(setZeroState).toHaveBeenCalledWith(false);
+    expect(navigateMock).toHaveBeenCalledWith('/insights/content/repositories');
+  });
+
+  it('navigates to templates', async () => {
+    const setZeroState = jest.fn();
+    const user = userEvent.setup();
+    (useAppContext as jest.Mock).mockReturnValue({
+      setZeroState,
+      isLightspeedEnabled: false,
+    });
+
+    render(<ZeroState />);
+
+    await user.click(screen.getByRole('button', { name: 'Create a template' }));
+    expect(setZeroState).toHaveBeenCalledWith(false);
+    expect(navigateMock).toHaveBeenCalledWith('/insights/content/templates');
+  });
+
+  it('dismisses zero state when clicking get started button', async () => {
+    const setZeroState = jest.fn();
+    const user = userEvent.setup();
+    (useAppContext as jest.Mock).mockReturnValue({
+      setZeroState,
+      isLightspeedEnabled: false,
+    });
+
+    render(<ZeroState />);
+
+    await user.click(screen.getByRole('button', { name: 'Get started' }));
+    expect(setZeroState).toHaveBeenCalledWith(false);
   });
 
   it('uses lightspeed copy when enabled', () => {
@@ -74,5 +119,6 @@ describe('ZeroState', () => {
 
     expect(screen.getByText(/Get started with Red Hat Lightspeed/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Browse Red Hat repositories' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create a template' })).toBeInTheDocument();
   });
 });

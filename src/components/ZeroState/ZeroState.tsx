@@ -19,7 +19,7 @@ import { createUseStyles } from 'react-jss';
 
 import { useAppContext } from 'middleware/AppContext';
 import { useHref, useNavigate } from 'react-router-dom';
-import { REPOSITORIES_ROUTE } from 'Routes/constants';
+import { REPOSITORIES_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 
 const useStyles = createUseStyles({
   contentZerostate: {
@@ -46,13 +46,33 @@ export const ZeroState = () => {
     setZeroState(false);
   };
 
-  const repoList = [
+  const cardList = [
     {
       title: 'Red Hat repositories',
       description: 'Browse available Red Hat repositories to create RHEL images.',
+      buttonLabel: 'Browse Red Hat repositories',
       onClick: () => {
         setZeroState(false);
         navigate(`${pathname}/${REPOSITORIES_ROUTE}?origin=red_hat`);
+      },
+    },
+    {
+      title: 'Custom repositories',
+      description: 'Add and manage custom repositories for your organization.',
+      buttonLabel: 'Add custom repositories',
+      onClick: () => {
+        setZeroState(false);
+        navigate(`${pathname}/${REPOSITORIES_ROUTE}`);
+      },
+    },
+    {
+      title: 'Content templates',
+      description:
+        'Control the scope of packages and advisory updates to be installed on selected systems.',
+      buttonLabel: 'Create a template',
+      onClick: () => {
+        setZeroState(false);
+        navigate(`${pathname}/${TEMPLATES_ROUTE}`);
       },
     },
   ];
@@ -75,11 +95,11 @@ export const ZeroState = () => {
             ErrorComponent={<ErrorState />}
             app='Content_management'
             ouiaId='get_started_from_zerostate_description'
-            customText={`Get started with ${isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'} by adding repositories`}
+            customText={`Get started with ${isLightspeedEnabled ? 'Red Hat Lightspeed' : 'Insights'} by adding repositories and templates`}
             customSection={
               <PageSection hasBodyWrapper={false} className={classes.removeBottomPadding}>
                 <Flex direction={{ default: 'row' }} gap={{ default: 'gap' }}>
-                  {repoList.map(({ title, description, onClick }) => (
+                  {cardList.map(({ title, description, buttonLabel, onClick }) => (
                     <FlexItem flex={{ default: 'flex_1' }} key={title}>
                       <Card>
                         <CardTitle>
@@ -90,7 +110,7 @@ export const ZeroState = () => {
                             <Content component='p'>{description}</Content>
                           </Content>
                           <Button onClick={onClick} variant='secondary' size='lg'>
-                            Browse {title}
+                            {buttonLabel}
                           </Button>
                         </CardBody>
                       </Card>
@@ -101,11 +121,11 @@ export const ZeroState = () => {
             }
             customButton={
               <Button
-                id='get-started-repositories-button'
-                ouiaId='get_started_repositories_button'
+                id='get-started-button'
+                ouiaId='get_started_button'
                 onClick={() => handleMainButtonClick()}
               >
-                Add repositories now
+                Get started
               </Button>
             }
           />
