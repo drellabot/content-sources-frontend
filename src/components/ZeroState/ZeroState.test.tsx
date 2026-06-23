@@ -44,9 +44,8 @@ describe('ZeroState', () => {
     navigateMock.mockReset();
   });
 
-  it('shows all cards and navigates from buttons', async () => {
+  it('shows both cards with correct content', () => {
     const setZeroState = jest.fn();
-    const user = userEvent.setup();
     (useAppContext as jest.Mock).mockReturnValue({
       setZeroState,
       isLightspeedEnabled: false,
@@ -55,16 +54,28 @@ describe('ZeroState', () => {
     render(<ZeroState />);
 
     expect(screen.getByText(/Get started with Insights/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Browse Red Hat repositories' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Add custom repositories' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create a template' })).toBeInTheDocument();
+    expect(screen.getByText('About content templates')).toBeInTheDocument();
+    expect(screen.getByText('About repositories')).toBeInTheDocument();
+    expect(screen.getByText(/Content templates use repository snapshots/i)).toBeInTheDocument();
+    expect(screen.getByText(/Repositories provide the content sources/i)).toBeInTheDocument();
+  });
 
-    await user.click(screen.getByRole('button', { name: 'Browse Red Hat repositories' }));
+  it('navigates to browse repositories from the repositories card', async () => {
+    const setZeroState = jest.fn();
+    const user = userEvent.setup();
+    (useAppContext as jest.Mock).mockReturnValue({
+      setZeroState,
+      isLightspeedEnabled: false,
+    });
+
+    render(<ZeroState />);
+
+    await user.click(screen.getByRole('button', { name: 'Browse available repositories' }));
     expect(setZeroState).toHaveBeenCalledWith(false);
     expect(navigateMock).toHaveBeenCalledWith('/insights/content/repositories?origin=red_hat');
   });
 
-  it('navigates to custom repositories', async () => {
+  it('navigates to create template from CTA button', async () => {
     const setZeroState = jest.fn();
     const user = userEvent.setup();
     (useAppContext as jest.Mock).mockReturnValue({
@@ -74,14 +85,28 @@ describe('ZeroState', () => {
 
     render(<ZeroState />);
 
-    await user.click(screen.getByRole('button', { name: 'Add custom repositories' }));
+    await user.click(screen.getByRole('button', { name: 'Create template' }));
+    expect(setZeroState).toHaveBeenCalledWith(false);
+    expect(navigateMock).toHaveBeenCalledWith('/insights/content/templates/add');
+  });
+
+  it('navigates to add repositories from CTA button', async () => {
+    const setZeroState = jest.fn();
+    const user = userEvent.setup();
+    (useAppContext as jest.Mock).mockReturnValue({
+      setZeroState,
+      isLightspeedEnabled: false,
+    });
+
+    render(<ZeroState />);
+
+    await user.click(screen.getByRole('button', { name: 'Add repositories' }));
     expect(setZeroState).toHaveBeenCalledWith(false);
     expect(navigateMock).toHaveBeenCalledWith('/insights/content/repositories');
   });
 
-  it('navigates to templates', async () => {
+  it('renders learn more links', () => {
     const setZeroState = jest.fn();
-    const user = userEvent.setup();
     (useAppContext as jest.Mock).mockReturnValue({
       setZeroState,
       isLightspeedEnabled: false,
@@ -89,23 +114,12 @@ describe('ZeroState', () => {
 
     render(<ZeroState />);
 
-    await user.click(screen.getByRole('button', { name: 'Create a template' }));
-    expect(setZeroState).toHaveBeenCalledWith(false);
-    expect(navigateMock).toHaveBeenCalledWith('/insights/content/templates');
-  });
-
-  it('dismisses zero state when clicking get started button', async () => {
-    const setZeroState = jest.fn();
-    const user = userEvent.setup();
-    (useAppContext as jest.Mock).mockReturnValue({
-      setZeroState,
-      isLightspeedEnabled: false,
-    });
-
-    render(<ZeroState />);
-
-    await user.click(screen.getByRole('button', { name: 'Get started' }));
-    expect(setZeroState).toHaveBeenCalledWith(false);
+    const learnMoreLinks = screen.getAllByRole('link');
+    expect(learnMoreLinks).toHaveLength(2);
+    expect(
+      screen.getByText('Learn more about managing system content and patch updates'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Learn more about repositories')).toBeInTheDocument();
   });
 
   it('uses lightspeed copy when enabled', () => {
@@ -118,7 +132,7 @@ describe('ZeroState', () => {
     render(<ZeroState />);
 
     expect(screen.getByText(/Get started with Red Hat Lightspeed/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Browse Red Hat repositories' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create a template' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create template' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add repositories' })).toBeInTheDocument();
   });
 });
